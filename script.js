@@ -1,35 +1,45 @@
-let count = sessionStorage.getItem('num_count') || 0;
+//Tool App
+document.addEventListener("Todos", init);
 
-function updateCount() {
-
-    document.getElementById('num_count').textContent = count;
-    sessionStorage.setItem('num_count', count);
+function init() {
+    loadTasks();
 }
 
-
-function increaseCount() {
-    count++;
-    updateCount();
+function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks.forEach(task => addTaskToDOM(task));
 }
 
-function decreaseCount() {
-    count--;
-    updateCount();
+function addTask() {
+    const taskInput = document.getElementById("taskInput");
+    const task = taskInput.value.trim();
+    if (task == "") return;
+
+    addTaskToDOM(task);
+    saveTask(task)
+    taskInput.value = "";
 }
 
-function resetCount() {
-    count = 0;
-    updateCount();
+function addTaskToDOM(task) {
+    const taskList = document.getElementById("taskList");
+    const li = document.createElement("li");
+    li.innerHTML = `${task} <button class="remove-btn">Remove</button>`
+    taskList.appendChild(li);
+
+    li.querySelector(".remove-btn").addEventListener("click", function() {
+        removeTask(task, li);
+    })
 }
 
-document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowUp") {
-        increaseCount();
-    } else if (event.key === "ArrowDown") {
-        decreaseCount();
-    } else if (event.key === "Delete") {
-        resetCount();
-    }
-});
+function saveTask(task) {
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks.push(task);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
-updateCount();
+function removeTask(task, element) {
+    let tasks = JSON.parse(localStorage.getItem("tasks"));
+    tasks = tasks.filter(t => t !== task);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    element.remove();
+}
